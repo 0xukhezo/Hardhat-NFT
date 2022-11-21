@@ -59,14 +59,16 @@ module.exports = async ({ getNamedAccounts, deployments }) => {
     }
 
     log("----------------------------------------------------")
-    // arguments = [
-    //     vrfCoordinatorV2Address,
-    //     subscriptionId,
-    //     networkConfig[chainId]["gasLane"],
-    //     networkConfig[chainId]["mintFee"],
-    //     networkConfig[chainId]["callbackGasLimit"],
-    //     tokenUris,
-    // ]
+
+    arguments = [
+        vrfCoordinatorV2Address,
+        subscriptionId,
+        networkConfig[chainId]["gasLane"],
+        networkConfig[chainId]["callbackGasLimit"],
+        tokenUris,
+        networkConfig[chainId]["mintFee"],
+    ]
+
     const randomIpfsNft = await deploy("RandomIpfsNft", {
         from: deployer,
         args: arguments,
