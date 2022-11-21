@@ -1,7 +1,10 @@
 const { network } = require("hardhat")
 const { networkConfig, developmentChains } = require("../helper-hardhat-config")
 const { verify } = require("../utils/verify")
-const { storeImages } = require("../utils/uploadToPinata")
+const {
+    storeImages,
+    storeTokenUriMetadata,
+} = require("../utils/uploadToPinata")
 
 require("dotenv").config()
 
@@ -12,6 +15,18 @@ let tokenUris = [
     "ipfs://QmYQC5aGZu2PTH8XzbJrbDnvhj3gVs7ya33H9mqUNvST3d",
     "ipfs://QmZYmH5iDbD6v3U2ixoVAjioSzvWJszDzYdbeCLquGSpVm",
 ]
+
+const metadataTemplate = {
+    name: "",
+    description: "",
+    image: "",
+    attributes: [
+        {
+            trait_type: "Cuteness",
+            value: 100,
+        },
+    ],
+}
 
 module.exports = async ({ getNamedAccounts, deployments }) => {
     const { deploy, log } = deployments
@@ -44,8 +59,6 @@ module.exports = async ({ getNamedAccounts, deployments }) => {
     }
 
     log("----------------------------------------------------")
-
-    await storeImages(imagesLocation)
     // arguments = [
     //     vrfCoordinatorV2Address,
     //     subscriptionId,
@@ -72,25 +85,25 @@ module.exports = async ({ getNamedAccounts, deployments }) => {
 
 async function handleTokenUris() {
     tokenUris = []
-    // const { responses: imageUploadResponses, files } = await storeImages(
-    //     imagesLocation
-    // )
-    // for (imageUploadResponseIndex in imageUploadResponses) {
-    //     let tokenUriMetadata = { ...metadataTemplate }
-    //     tokenUriMetadata.name = files[imageUploadResponseIndex].replace(
-    //         ".png",
-    //         ""
-    //     )
-    //     tokenUriMetadata.description = `An adorable ${tokenUriMetadata.name} pup!`
-    //     tokenUriMetadata.image = `ipfs://${imageUploadResponses[imageUploadResponseIndex].IpfsHash}`
-    //     console.log(`Uploading ${tokenUriMetadata.name}...`)
-    //     const metadataUploadResponse = await storeTokenUriMetadata(
-    //         tokenUriMetadata
-    //     )
-    //     tokenUris.push(`ipfs://${metadataUploadResponse.IpfsHash}`)
-    // }
-    // console.log("Token URIs uploaded! They are:")
-    // console.log(tokenUris)
+    const { responses: imageUploadResponses, files } = await storeImages(
+        imagesLocation
+    )
+    for (imageUploadResponseIndex in imageUploadResponses) {
+        let tokenUriMetadata = { ...metadataTemplate }
+        tokenUriMetadata.name = files[imageUploadResponseIndex].replace(
+            ".png",
+            ""
+        )
+        tokenUriMetadata.description = `An adorable ${tokenUriMetadata.name} pup!`
+        tokenUriMetadata.image = `ipfs://${imageUploadResponses[imageUploadResponseIndex].IpfsHash}`
+        console.log(`Uploading ${tokenUriMetadata.name}...`)
+        const metadataUploadResponse = await storeTokenUriMetadata(
+            tokenUriMetadata
+        )
+        tokenUris.push(`ipfs://${metadataUploadResponse.IpfsHash}`)
+    }
+    console.log("Token URIs uploaded! They are:")
+    console.log(tokenUris)
     return tokenUris
 }
 
