@@ -1,26 +1,40 @@
-const { network, ethers } = require("hardhat")
-const { developmentChains, networkConfig } = require("../helper-hardhat-config")
+const { network } = require("hardhat")
+const { networkConfig, developmentChains } = require("../helper-hardhat-config")
 const { verify } = require("../utils/verify")
+const { storeImages } = require("../utils/uploadToPinata")
+
+require("dotenv").config()
+
+const FUND_AMOUNT = "1000000000000000000000"
+const imagesLocation = "./images/randomNft/"
+let tokenUris = [
+    "ipfs://QmaVkBn2tKmjbhphU7eyztbvSQU5EXDdqRyXZtRhSGgJGo",
+    "ipfs://QmYQC5aGZu2PTH8XzbJrbDnvhj3gVs7ya33H9mqUNvST3d",
+    "ipfs://QmZYmH5iDbD6v3U2ixoVAjioSzvWJszDzYdbeCLquGSpVm",
+]
 
 module.exports = async ({ getNamedAccounts, deployments }) => {
     const { deploy, log } = deployments
     const { deployer } = await getNamedAccounts()
     const chainId = network.config.chainId
+    let vrfCoordinatorV2Address, subscriptionId, vrfCoordinatorV2Mock
 
-    let vrfCoordinatorV2Address, subscriptionId
+    if (process.env.UPLOAD_TO_PINATA == "true") {
+        tokenUris = await handleTokenUris()
+    }
 
     if (chainId == 31337) {
         vrfCoordinatorV2Mock = await ethers.getContractAt(
             "VRFCoordinatorV2Mock",
             "0x5FbDB2315678afecb367f032d93F642f64180aa3"
         )
+
         vrfCoordinatorV2Address = vrfCoordinatorV2Mock.address
 
         const transactionResponse =
             await vrfCoordinatorV2Mock.createSubscription()
 
         const transactionReceipt = await transactionResponse.wait()
-
         subscriptionId = transactionReceipt.events[0].args.subId
 
         await vrfCoordinatorV2Mock.fundSubscription(subscriptionId, FUND_AMOUNT)
@@ -29,32 +43,55 @@ module.exports = async ({ getNamedAccounts, deployments }) => {
         subscriptionId = networkConfig[chainId].subscriptionId
     }
 
-    log("------------------------------------")
+    log("----------------------------------------------------")
 
-    const args = [
-        vrfCoordinatorV2Address,
-        subscriptionId,
-        networkConfig[chainId].gasLane,
-        networkConfig[chainId].callbackGasLimit,
-        // tokenuris,
-        networkConfig[chainId].mintFee,
-    ]
-
+    await storeImages(imagesLocation)
+    // arguments = [
+    //     vrfCoordinatorV2Address,
+    //     subscriptionId,
+    //     networkConfig[chainId]["gasLane"],
+    //     networkConfig[chainId]["mintFee"],
+    //     networkConfig[chainId]["callbackGasLimit"],
+    //     tokenUris,
+    // ]
     const randomIpfsNft = await deploy("RandomIpfsNft", {
         from: deployer,
-        args: args,
+        args: arguments,
         log: true,
         waitConfirmations: network.config.blockConfirmations || 1,
     })
 
     if (
         !developmentChains.includes(network.name) &&
-        process.env.ETHERSCAN_API
+        process.env.ETHERSCAN_API_KEY
     ) {
-        log("------------------------------------")
         log("Verifying...")
-        await verify(randomIpfsNft.address, args)
+        await verify(randomIpfsNft.address, arguments)
     }
 }
 
-module.exports.tags = ["all", "randomIpfsNft"]
+async function handleTokenUris() {
+    tokenUris = []
+    // const { responses: imageUploadResponses, files } = await storeImages(
+    //     imagesLocation
+    // )
+    // for (imageUploadResponseIndex in imageUploadResponses) {
+    //     let tokenUriMetadata = { ...metadataTemplate }
+    //     tokenUriMetadata.name = files[imageUploadResponseIndex].replace(
+    //         ".png",
+    //         ""
+    //     )
+    //     tokenUriMetadata.description = `An adorable ${tokenUriMetadata.name} pup!`
+    //     tokenUriMetadata.image = `ipfs://${imageUploadResponses[imageUploadResponseIndex].IpfsHash}`
+    //     console.log(`Uploading ${tokenUriMetadata.name}...`)
+    //     const metadataUploadResponse = await storeTokenUriMetadata(
+    //         tokenUriMetadata
+    //     )
+    //     tokenUris.push(`ipfs://${metadataUploadResponse.IpfsHash}`)
+    // }
+    // console.log("Token URIs uploaded! They are:")
+    // console.log(tokenUris)
+    return tokenUris
+}
+
+module.exports.tags = ["all", "randomIpfsNft", "main"]
