@@ -90,6 +90,7 @@ async function handleTokenUris() {
     const { responses: imageUploadResponses, files } = await storeImages(
         imagesLocation
     )
+
     for (imageUploadResponseIndex in imageUploadResponses) {
         let tokenUriMetadata = { ...metadataTemplate }
         tokenUriMetadata.name = files[imageUploadResponseIndex].replace(
