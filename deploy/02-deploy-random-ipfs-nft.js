@@ -64,8 +64,8 @@ module.exports = async ({ getNamedAccounts, deployments }) => {
         vrfCoordinatorV2Address,
         subscriptionId,
         networkConfig[chainId]["gasLane"],
-        networkConfig[chainId]["callbackGasLimit"],
         networkConfig[chainId]["mintFee"],
+        networkConfig[chainId]["callbackGasLimit"],
         tokenUris,
     ]
 
