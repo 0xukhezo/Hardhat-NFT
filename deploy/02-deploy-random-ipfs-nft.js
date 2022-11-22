@@ -65,8 +65,8 @@ module.exports = async ({ getNamedAccounts, deployments }) => {
         subscriptionId,
         networkConfig[chainId]["gasLane"],
         networkConfig[chainId]["callbackGasLimit"],
-        tokenUris,
         networkConfig[chainId]["mintFee"],
+        tokenUris,
     ]
 
     const randomIpfsNft = await deploy("RandomIpfsNft", {

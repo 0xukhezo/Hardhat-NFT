@@ -21,11 +21,9 @@ async function storeImages(imagesFilePath) {
         const readableStreamForFile = fs.createReadStream(
             `${fullImagesPath}/${files[fileIndex]}`
         )
-        const indexForNaming = readableStreamForFile.path.lastIndexOf("/")
-
         const options = {
             pinataMetadata: {
-                name: readableStreamForFile.path.slice(indexForNaming + 1),
+                name: files[fileIndex],
             },
         }
         try {

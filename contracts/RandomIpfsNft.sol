@@ -46,15 +46,16 @@ contract RandomIpfsNft is VRFConsumerBaseV2, ERC721URIStorage, Ownable {
         uint64 subscriptionId,
         bytes32 gasLane,
         uint32 callbackGasLimit,
-        string[3] memory dogTokenUri,
-        uint256 mintFee
+        uint256 mintFee,
+        string[3] memory dogTokenUri
     ) VRFConsumerBaseV2(vrfCoordinatorV2) ERC721("Random IPFS NFT", "RIN") {
         i_vrfCoordinator = VRFCoordinatorV2Interface(vrfCoordinatorV2);
         i_subscriptionId = subscriptionId;
         i_gasLane = gasLane;
         i_callbackGasLimit = callbackGasLimit;
-        s_dogTokenUris = dogTokenUri;
+        _initializeContract(dogTokenUri);
         i_mintFee = mintFee;
+        s_tokenCounter = 0;
     }
 
     function withdraw() public onlyOwner {

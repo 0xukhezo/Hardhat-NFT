@@ -11,7 +11,6 @@ const { developmentChains } = require("../../helper-hardhat-config")
               accounts = await ethers.getSigners()
               deployer = accounts[0]
               const contractAddress = await deployments.fixture(["simpleNft"])
-              console.log(contractAddress)
               simpleNft = await ethers.getContractAt(
                   "SimpleNft",
                   contractAddress.SimpleNft.address,
