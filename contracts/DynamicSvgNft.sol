@@ -14,6 +14,8 @@ contract DinamicSvgNft is ERC721 {
     AggregatorV3Interface internal immutable i_priceFeed;
     mapping(uint256 => int256) public s_tokenIdToHighValue;
 
+    event CreatedNFT(uint256 indexed tokenId, int256 highValue);
+
     constructor(
         address priceFeedAddress,
         string memory lowSvg,
@@ -37,12 +39,13 @@ contract DinamicSvgNft is ERC721 {
 
     function mintNft(int256 highValue) public {
         s_tokenIdToHighValue[s_tokenCounter] = highValue;
-        _safeMint(msg.sender, s_tokenCounter);
         s_tokenCounter = s_tokenCounter + 1;
+        _safeMint(msg.sender, s_tokenCounter);
+        emit CreatedNFT(s_tokenCounter, highValue);
     }
 
-    function _baseUri() internal pure override returns (string memory) {
-        return "data:image/svg+xml;base64,";
+    function _baseURI() internal pure override returns (string memory) {
+        return "data:application/json;base64,";
     }
 
     function tokenURI(
