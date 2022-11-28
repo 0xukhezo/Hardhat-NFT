@@ -96,7 +96,7 @@ module.exports = async ({ getNamedAccounts, deployments }) => {
     const dynamicSvgNftMintTx = await dynamicNft.mintNft(highValue)
     await dynamicSvgNftMintTx.wait(1)
     console.log(
-        `Dynamic Nft index 0 has tokenURI: ${await dynamicNft.tokenURI(1)}`
+        `Dynamic Nft index 0 has tokenURI: ${await dynamicNft.tokenURI(0)}`
     )
     log("------------------------------------")
 }
