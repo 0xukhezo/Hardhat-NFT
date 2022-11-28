@@ -5,7 +5,7 @@ import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import "@chainlink/contracts/src/v0.8/interfaces/AggregatorV3Interface.sol";
 import "base64-sol/base64.sol";
 
-contract DinamicSvgNft is ERC721 {
+contract DynamicSvgNft is ERC721 {
     uint256 private s_tokenCounter;
     string private i_imageLowSvg;
     string private i_imageHighSvg;
@@ -27,9 +27,11 @@ contract DinamicSvgNft is ERC721 {
         i_priceFeed = AggregatorV3Interface(priceFeedAddress);
     }
 
-    function svgToImageURI(
-        string memory _svg
-    ) public pure returns (string memory) {
+    function svgToImageURI(string memory _svg)
+        public
+        pure
+        returns (string memory)
+    {
         string memory svgBase64Encoded = Base64.encode(
             bytes(string(abi.encodePacked(_svg)))
         );
@@ -48,11 +50,14 @@ contract DinamicSvgNft is ERC721 {
         return "data:application/json;base64,";
     }
 
-    function tokenURI(
-        uint256 tokenId
-    ) public view override returns (string memory) {
+    function tokenURI(uint256 tokenId)
+        public
+        view
+        override
+        returns (string memory)
+    {
         require(_exists(tokenId), "URI Query for nonexistent token");
-        // string memory imageURI = "hi!";
+
         (, int256 price, , , ) = i_priceFeed.latestRoundData();
         string memory imageURI = i_imageLowSvg;
 
@@ -62,7 +67,7 @@ contract DinamicSvgNft is ERC721 {
         return
             string(
                 abi.encodePacked(
-                    _baseUri(),
+                    _baseURI(),
                     Base64.encode(
                         bytes(
                             abi.encodePacked(
